@@ -3,12 +3,14 @@ const inject = require("gulp-inject");
 const del = require("del");
 const browserSync = require("browser-sync").create();
 const { buildPath, filesToWatch, filesToInject } = require("./gulpfile.config");
+const httpProxy = require("http-proxy");
+const proxy = httpProxy.createProxyServer({});
 
 // INJECT TASK
 function index(cb) {
   const target = src("./src/index.html");
   const sources = src(filesToInject, {
-    read: false
+    read: false,
   });
   return target
     .pipe(inject(sources, { ignorePath: "src" }))
@@ -24,6 +26,10 @@ function copyVendorJs(cb) {
   return src("./src/**/js/vendor/*.js").pipe(dest(buildPath));
 }
 
+function copyVendorCss(cb) {
+  return src("./src/**/css/vendor/*.css").pipe(dest(buildPath));
+}
+
 function copyAppJs(cb) {
   return src("./src/**/app/**/*.js").pipe(dest(buildPath));
 }
@@ -34,7 +40,11 @@ function clean(cb) {
 }
 
 // BUILD TASK
-const build = series(clean, parallel(copyVendorJs, copyAppJs, copyCss), index);
+const build = series(
+  clean,
+  parallel(copyVendorJs, copyVendorCss, copyAppJs, copyCss),
+  index
+);
 
 // RELOAD
 function sync(cb) {
@@ -47,8 +57,18 @@ function serve(cb) {
   // Serve files from the root of this project
   browserSync.init({
     server: {
-      baseDir: buildPath
-    }
+      baseDir: buildPath,
+    },
+    middleware: [
+      {
+        route: "/api",
+        handle: function (req, res, next) {
+          proxy.web(req, res, {
+            target: "http://10.3.69.65",
+          });
+        },
+      },
+    ],
   });
 
   watch(filesToWatch, { delay: 500 }, series(build, sync));
