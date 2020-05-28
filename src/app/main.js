@@ -11,8 +11,15 @@ $(function () {
   var template = Handlebars.compile(content);
 
   $("#pagination-container").pagination({
-    dataSource: function () {
-      return [1, 2, 3, 4];
+    dataSource: function (done) {
+      $.ajax({
+        type: "GET",
+        url: "api/products?sort=rating,desc&category=&name=",
+        success: function (response) {
+          debugger;
+          done(response);
+        },
+      });
     },
     callback: function (data, pagination) {
       // template method of yourself
