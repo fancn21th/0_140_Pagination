@@ -19,6 +19,6 @@
     "del": "^5.1.0",
     "gulp": "^4.0.2",
     "gulp-inject": "^5.0.4",
-    "http-proxy": "^1.18.1"
+    "http-proxy-middleware": "^1.0.4"
   }
 }

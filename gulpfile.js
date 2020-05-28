@@ -3,8 +3,16 @@ const inject = require("gulp-inject");
 const del = require("del");
 const browserSync = require("browser-sync").create();
 const { buildPath, filesToWatch, filesToInject } = require("./gulpfile.config");
-const httpProxy = require("http-proxy");
-const proxy = httpProxy.createProxyServer({});
+const { createProxyMiddleware } = require("http-proxy-middleware");
+
+/**
+ * Configure proxy middleware
+ */
+const jsonPlaceholderProxy = createProxyMiddleware("/api", {
+  target: "http://10.3.69.65",
+  changeOrigin: true, // for vhosted sites, changes host header to match to target's host
+  logLevel: "debug",
+});
 
 // INJECT TASK
 function index(cb) {
@@ -58,17 +66,9 @@ function serve(cb) {
   browserSync.init({
     server: {
       baseDir: buildPath,
+      port: 3003,
+      middleware: [jsonPlaceholderProxy],
     },
-    middleware: [
-      {
-        route: "/api",
-        handle: function (req, res, next) {
-          proxy.web(req, res, {
-            target: "http://10.3.69.65",
-          });
-        },
-      },
-    ],
   });
 
   watch(filesToWatch, { delay: 500 }, series(build, sync));
