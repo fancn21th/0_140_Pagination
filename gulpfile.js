@@ -9,7 +9,7 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
  * Configure proxy middleware
  */
 const jsonPlaceholderProxy = createProxyMiddleware("/api", {
-  target: "http://10.3.69.65",
+  target: "http://172.16.3.169",
   changeOrigin: true, // for vhosted sites, changes host header to match to target's host
   logLevel: "debug",
 });

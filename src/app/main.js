@@ -3,23 +3,21 @@ $(function () {
   var content = [
     "<ul>",
     "{{#each products}}",
-    "<li>{{this}}</li>",
+    "<li>{{this.name}}</li>",
     "{{/each}}",
     "</ul>",
   ].join("");
 
   var template = Handlebars.compile(content);
 
+  var dcPageSize = 2;
+
   $("#pagination-container").pagination({
-    dataSource: function (done) {
-      $.ajax({
-        type: "GET",
-        url: "api/products?sort=rating,desc&category=&name=",
-        success: function (response) {
-          debugger;
-          done(response);
-        },
-      });
+    dataSource: "api/products?sort=rating,desc&category=&name=",
+    pageSize: dcPageSize,
+    locator: "content",
+    totalNumberLocator: function (response) {
+      return response.totalPages;
     },
     callback: function (data, pagination) {
       // template method of yourself
@@ -27,6 +25,10 @@ $(function () {
         products: data,
       });
       $("#data-container").html(html);
+    },
+    alias: {
+      pageNumber: "page",
+      pageSize: "size",
     },
   });
 });
