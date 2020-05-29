@@ -12,23 +12,40 @@ $(function () {
 
   var dcPageSize = 2;
 
-  $("#pagination-container").pagination({
-    dataSource: "api/products?sort=rating,desc&category=&name=",
-    pageSize: dcPageSize,
-    locator: "content",
-    totalNumberLocator: function (response) {
-      return response.totalPages;
-    },
-    callback: function (data, pagination) {
-      // template method of yourself
-      var html = template({
-        products: data,
-      });
-      $("#data-container").html(html);
-    },
-    alias: {
-      pageNumber: "page",
-      pageSize: "size",
-    },
+  var search = $("#search-txt");
+  var pgContainer = $("#pagination-container");
+  var dataContainer = $("#data-container");
+
+  $("#search-btn").click(function () {
+    createPg(pgContainer, dataContainer, search.val());
   });
+
+  var createPg = function (container, dataContainer, searchParam) {
+    container.pagination({
+      dataSource: "api/products?sort=rating,desc&category=&name=" + searchParam,
+      alias: {
+        pageNumber: "page",
+        pageSize: "size",
+      },
+      pageSize: dcPageSize,
+      locator: "content",
+      ajax: {
+        beforeSend: function () {
+          dataContainer.html("Loading data ...");
+        },
+      },
+      totalNumberLocator: function (response) {
+        return response.totalPages;
+      },
+      callback: function (data, pagination) {
+        // template method of yourself
+        var html = template({
+          products: data,
+        });
+        dataContainer.html(html);
+      },
+    });
+  };
+
+  createPg(pgContainer, dataContainer, "");
 });
