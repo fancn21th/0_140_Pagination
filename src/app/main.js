@@ -20,8 +20,9 @@ $(function () {
     createPg(pgContainer, dataContainer, search.val());
   });
 
-  var createPg = function (container, dataContainer, searchParam) {
-    container.pagination({
+  var createPg = function (pgContainer, dataContainer, searchParam) {
+    pgContainer.destroy && pgContainer.destroy();
+    pgContainer.pagination({
       dataSource: "api/products?sort=rating,desc&category=&name=" + searchParam,
       alias: {
         pageNumber: "page",
