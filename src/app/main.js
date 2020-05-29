@@ -20,6 +20,12 @@ $(function () {
     createPg(pgContainer, dataContainer, search.val());
   });
 
+  var getNewUrl = function (url) {
+    return url.replace(/(page=)(\d+)/, function (match, p1, p2) {
+      return p1 + (parseInt(p2) - 1);
+    });
+  };
+
   var createPg = function (pgContainer, dataContainer, searchParam) {
     pgContainer.destroy && pgContainer.destroy();
     pgContainer.pagination({
@@ -32,11 +38,13 @@ $(function () {
       locator: "content",
       ajax: {
         beforeSend: function () {
+          const newUrl = getNewUrl(this.url);
+          this.url = newUrl;
           dataContainer.html("Loading data ...");
         },
       },
       totalNumberLocator: function (response) {
-        return response.totalPages;
+        return response.totalElements;
       },
       callback: function (data, pagination) {
         // template method of yourself
